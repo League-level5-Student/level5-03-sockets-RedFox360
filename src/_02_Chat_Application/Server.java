@@ -1,13 +1,14 @@
-package _01_Intro_To_Sockets.server;
+package _02_Chat_Application;
 
 import java.net.*;
+import java.util.Scanner;
 import java.io.*;
 
-public class ServerGreeter extends Thread {
+public class Server extends Thread {
 	// 1. Create an object of the ServerSocket class
 	ServerSocket server;
 
-	public ServerGreeter() throws IOException {
+	public Server() throws IOException {
 		// 2. Initialize the ServerSocket object. In the parameters,
 		// you must define the port at which the server will listen for connections.
 		server = new ServerSocket(8080);
@@ -21,6 +22,7 @@ public class ServerGreeter extends Thread {
 		boolean loop = true;
 		// 4. Make a while loop that continues looping as long as the boolean created in
 		// the previous step is true.
+		Scanner scan = new Scanner(System.in);
 		while (loop) {
 			// 5. Make a try-catch block that checks for two types Exceptions:
 			// SocketTimeoutException and IOException.
@@ -42,13 +44,16 @@ public class ServerGreeter extends Thread {
 				DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 				// 12. Print the message from the DataInputStream object using the readUTF()
 				// method
-				System.out.println(inputStream.readUTF());
+				System.out.println("Message from client: " + inputStream.readUTF());
 				// 13. Create a DataOutputStream object. When initializing it, use the Server
 				// object you created in step 9 to call the getOutputStream() method.
 				DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 				// 14. Use the DataOutputStream object to send a message to the client using the
 				// writeUTF(String message) method.
-				outputStream.writeUTF("Hello World!");
+				System.out.println("Send a message: ");
+				String msg = scan.nextLine();
+				outputStream.writeUTF(msg);
+				System.out.println("Message sent.");
 				// 15. Close the client server
 				socket.close();
 			} catch (SocketTimeoutException e) {
@@ -63,6 +68,7 @@ public class ServerGreeter extends Thread {
 				loop = false;
 			}
 		}
+		scan.close();
 
 	}
 
@@ -70,7 +76,7 @@ public class ServerGreeter extends Thread {
 		// 16. In a new thread, create an object of the ServerGreeter class and start
 		// the thread. Don't forget the try-catch.
 		try {
-			new ServerGreeter().start();
+			new Server().start();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
