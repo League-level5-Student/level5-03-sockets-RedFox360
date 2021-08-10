@@ -23,39 +23,59 @@ public class Server extends Thread {
 		// 4. Make a while loop that continues looping as long as the boolean created in
 		// the previous step is true.
 		Scanner scan = new Scanner(System.in);
+		
+		Socket socket = null;
+
+		
+		try {
+			socket = server.accept();
+			DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+			Thread thread = new Thread(() -> {
+				boolean l = true;
+				while (l) {
+				try {
+					System.out.println("Message from client: " + inputStream.readUTF());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					l = false;
+				}
+				}
+			});
+			thread.start();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		while (loop) {
 			// 5. Make a try-catch block that checks for two types Exceptions:
 			// SocketTimeoutException and IOException.
 			// Put steps 8 - 15 in the try block.
 			try {
 				// 8. Let the user know that the server is waiting for a client to connect.
-				System.out.println("Server waiting for client...");
 				// 9. Create an object of the Socket class and initialize it to
 				// serverSocket.accept();
 				// Change serverSocket to match the ServerSocket member variable you created in
 				// step 1.
 				// The program will wait her until either a client connects or the timeout
 				// expires.
-				Socket socket = server.accept();
 				// 10. Let the user know that the client has connected.
-				System.out.println("Client has connected.");
 				// 11. Create a DataInputStream object. When initializing it, use the Socket
 				// object you created in step 9 to call the getInputStream() method.
-				DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 				// 12. Print the message from the DataInputStream object using the readUTF()
 				// method
-				System.out.println("Message from client: " + inputStream.readUTF());
 				// 13. Create a DataOutputStream object. When initializing it, use the Server
 				// object you created in step 9 to call the getOutputStream() method.
 				DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 				// 14. Use the DataOutputStream object to send a message to the client using the
 				// writeUTF(String message) method.
-				System.out.println("Send a message: ");
 				String msg = scan.nextLine();
+				if (msg.equalsIgnoreCase("quit")) {
+					loop = false;
+				}
 				outputStream.writeUTF(msg);
-				System.out.println("Message sent.");
 				// 15. Close the client server
-				socket.close();
+
 			} catch (SocketTimeoutException e) {
 				// 6. If the program catches a SockeTimeoutException, let the user know about it
 				// and set loop's boolean variable to false.
@@ -66,7 +86,14 @@ public class Server extends Thread {
 				// the loop's boolean variable to false.
 				System.out.println("An IOException occured!");
 				loop = false;
-			}
+			} 
+		}
+
+		try {
+			socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		scan.close();
 
